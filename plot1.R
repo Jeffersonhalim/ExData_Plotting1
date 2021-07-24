@@ -1,32 +1,20 @@
-t <- read.table("household_power_consumption.txt", header=TRUE, sep=";", na.strings = "?", colClasses = c('character','character','numeric','numeric','numeric','numeric','numeric','numeric','numeric'))
+# Loading the data
+data <- read.table("household_power_consumption.txt", header= TRUE, sep=";", stringsAsFactors=FALSE, dec=".")
+summary(data)
 
-## Format date to Type Date
-t$Date <- as.Date(t$Date, "%d/%m/%Y")
+# Subset the data
+subsetdata <- data[data$Date %in% c("1/2/2007","2/2/2007"),]
 
-## Filter data set from Feb. 1, 2007 to Feb. 2, 2007
-t <- subset(t,Date >= as.Date("2007-2-1") & Date <= as.Date("2007-2-2"))
+globalActivePower <- as.numeric(subsetdata$Global_active_power)
+globalReactivePower <- as.numeric(subsetdata$Global_reactive_power)
+voltage <- as.numeric(subsetdata$Voltage)
+subMetering1 <- as.numeric(subsetdata$Sub_metering_1)
+subMetering2 <- as.numeric(subsetdata$Sub_metering_2)
+subMetering3 <- as.numeric(subsetdata$Sub_metering_3)
 
-## Remove incomplete observation
-t <- t[complete.cases(t),]
+# Make the Histogram
+hist(globalActivePower, col="red", main="Global Active Power", xlab="Global Active Power (kilowatts)")
 
-## Combine Date and Time column
-dateTime <- paste(t$Date, t$Time)
-
-## Name the vector
-dateTime <- setNames(dateTime, "DateTime")
-
-## Remove Date and Time column
-t <- t[ ,!(names(t) %in% c("Date","Time"))]
-
-## Add DateTime column
-t <- cbind(dateTime, t)
-
-## Format dateTime Column
-t$dateTime <- as.POSIXct(dateTime)
-
-## Create the histogram
-hist(t$Global_active_power, main="Global Active Power", xlab = "Global Active Power (kilowatts)", col="red")
-
-## Save file and close device
+# Save file and close device
 dev.copy(png,"plot1.png", width=480, height=480)
 dev.off()
